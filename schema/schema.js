@@ -1,11 +1,15 @@
-const { GraphQLSchema, GraphQLObjectType, GraphQLString } = require("graphql");
+const { GraphQLSchema, GraphQLObjectType, GraphQLString, GraphQLInt } = require("graphql");
 
 const RootQuery = new GraphQLObjectType({
     name: "RootQueryType",
     fields: {
         hello: {
             type: GraphQLString,
-            resolve: () => "Welcome to Graphql"
+            resolve: () => "Welcome to Graphql mohit"
+        },
+        hello1: {
+            type: GraphQLInt,
+            resolve: () => 123456789
         }
     }
 });
