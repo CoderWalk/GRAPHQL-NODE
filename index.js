@@ -2,7 +2,7 @@ const express = require("express");
 const { graphqlHTTP } = require("express-graphql");
 const mongoose = require("mongoose");
 require("dotenv").config()
-const MySchema = require("./schema/schema");
+const MySchema = require("./schema/index");
 
 const app = express();
 mongoose.connect(process.env.MONGO_URL)

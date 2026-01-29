@@ -1,5 +1,14 @@
-const { GraphQLSchema, GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLList } = require("graphql");
+const { GraphQLSchema, GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLList, GraphQLNonNull, GraphQLInputObjectType } = require("graphql");
 const User = require("../model/User");
+
+const UserInput = new GraphQLInputObjectType({
+    name: "UserInput",
+    fields: {
+        name: { type: GraphQLNonNull(GraphQLString) },
+        age: { type: GraphQLNonNull(GraphQLInt) },
+        email: { type: GraphQLNonNull(GraphQLString) }
+    }
+})
 
 const UserObject = new GraphQLObjectType({
     name: "User",
@@ -45,16 +54,17 @@ const Mutation = new GraphQLObjectType({
         addUser: {
             type: UserObject,
             args: {
-                id: { type: GraphQLString },
-                name: { type: GraphQLString },
-                age: { type: GraphQLInt },
-                email: { type: GraphQLString }
+                input: { type: UserInput }
             },
-            async resolve(parent, args) {
+            async resolve(parent, { input }) {
+
+                if (!input.name || input.name.length < 3) {
+                    throw new Error("name must be 5 char long")
+                }
                 const userobj = new User({
-                    name: args.name,
-                    age: args.age,
-                    email: args.email
+                    name: input.name,
+                    age: input.age,
+                    email: input.email
                 })
                 return await userobj.save()
             }
