@@ -19,7 +19,7 @@ const RootMutationType = new GraphQLObjectType({
         addAuthor: {
             type: AuthorType,
             args: {
-                name: { type: new GraphQLNonNull(GraphQLString) }
+                name: { type: GraphQLString }
             },
             resolve(parent, args) {
                 const author = new Author({ name: args.name });
@@ -29,8 +29,8 @@ const RootMutationType = new GraphQLObjectType({
         addBook: {
             type: BookType,
             args: {
-                title: { type: new GraphQLNonNull(GraphQLString) },
-                authorid: { type: new GraphQLNonNull(GraphQLID) } // Fixed casing here
+                title: { type: GraphQLString },
+                authorid: { type: GraphQLID } // Fixed casing here
             },
             resolve(parent, args) {
                 const book = new Book({
@@ -46,21 +46,23 @@ const RootMutationType = new GraphQLObjectType({
 const RootQuery = new GraphQLObjectType({
     name: "RootQuery",
     fields: {
+        author: {
+            type: AuthorType,
+            args: {
+                id: { type: GraphQLID }
+            },
+            resolve(parent, args) {
+                return Author.findById(args.id)
+            }
+        },
         authors: {
             type: new GraphQLList(AuthorType),
             resolve: () => Author.find()
         },
-        author: {
-            type: AuthorType,
-            args: { id: { type: GraphQLID } },
-            resolve(parent, args) {
-                return Author.findById(args.id);
-            }
-        },
         books: {
             type: new GraphQLList(BookType),
             resolve: () => Book.find()
-        },
+        }
     }
 });
 
