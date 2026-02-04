@@ -4,11 +4,14 @@ const {
     GraphQLList,
     GraphQLID, // Fixed casing here
     GraphQLSchema,
+    GraphQLInt,
+    GraphQLBoolean,
     GraphQLNonNull
 } = require("graphql");
 
 const AuthorType = require("../types/AuthorType");
 const BookType = require("../types/BookType");
+const BookTypePagination = require("../types/BookTypePagination");
 
 const Author = require("../model/Author");
 const Book = require("../model/Book");
@@ -59,9 +62,35 @@ const RootQuery = new GraphQLObjectType({
             type: new GraphQLList(AuthorType),
             resolve: () => Author.find()
         },
-        books: {
+        /*books: {
             type: new GraphQLList(BookType),
             resolve: () => Book.find()
+        }*/
+        books: {
+            type: BookTypePagination,
+            args: {
+                page: { type: GraphQLInt },
+                authorid: { type: GraphQLID }
+            },
+            async resolve(parent, args) {
+                const limit = 3
+                const page = args.page || 1
+                const offset = (page - 1) * limit
+                const filter = {}
+                if (args.authorid) {
+                    filter.authorid = args.authorid
+                }
+                const totalCount = await Book.countDocuments(filter)
+                const totalPages = Math.ceil(totalCount / limit)
+                const books = await Book.find(filter).skip(offset).limit(limit)
+                return {
+                    books,
+                    currentPage: page,
+                    totalPages,
+                    hasNextPage: page < totalPages,
+                    hasPrevPage: page > 1
+                }
+            }
         }
     }
 });
